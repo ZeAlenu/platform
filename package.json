@@ -13,7 +13,9 @@
     "db:migrate": "tsx src/db/migrate.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "content:sync": "tsx scripts/sync-research.ts"
+    "content:sync": "tsx scripts/sync-researchers.ts && tsx scripts/sync-research.ts",
+    "content:sync:research": "tsx scripts/sync-research.ts",
+    "content:sync:researchers": "tsx scripts/sync-researchers.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

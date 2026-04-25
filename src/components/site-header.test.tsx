@@ -17,5 +17,6 @@ describe("SiteHeader", () => {
     expect(screen.getByText("מחקרים")).toBeInTheDocument();
     expect(screen.getByText("חוקרים")).toBeInTheDocument();
     expect(screen.getByText("אודות")).toBeInTheDocument();
+    expect(screen.getByText("צור קשר")).toBeInTheDocument();
   });
 });

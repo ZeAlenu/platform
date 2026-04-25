@@ -9,6 +9,11 @@ export interface ResearchFrontmatter {
   title: string;
   slug: string;
   authors: string[];
+  /**
+   * Optional explicit linkage to rows in the `researchers` table. When
+   * present, takes precedence over name-matching against `authors`.
+   */
+  researcher_slugs?: string[];
   published_at: string;
   tags: string[];
   excerpt: string;
@@ -52,6 +57,14 @@ function assertFrontmatter(
   }
   if (!Array.isArray(data.tags) || !data.tags.every((t) => typeof t === "string")) {
     throw new Error(`Frontmatter "tags" must be string[] in ${filePath}`);
+  }
+  if (data.researcher_slugs !== undefined) {
+    if (
+      !Array.isArray(data.researcher_slugs) ||
+      !data.researcher_slugs.every((s) => typeof s === "string")
+    ) {
+      throw new Error(`Frontmatter "researcher_slugs" must be string[] in ${filePath}`);
+    }
   }
 }
 

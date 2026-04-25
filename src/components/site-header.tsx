@@ -5,6 +5,7 @@ const navLinks = [
   { href: "/research", label: "מחקרים" },
   { href: "/researchers", label: "חוקרים" },
   { href: "/about", label: "אודות" },
+  { href: "/contact", label: "צור קשר" },
 ];
 
 export function SiteHeader() {

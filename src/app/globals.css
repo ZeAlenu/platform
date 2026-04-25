@@ -89,12 +89,28 @@ body {
   font-family: var(--font-sans);
   font-feature-settings: "kern", "liga", "calt";
   text-rendering: optimizeLegibility;
+  /* Generous line-height so Hebrew niqqud (vowel marks) never clip ascenders. */
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4 {
   font-family: var(--font-serif);
   font-weight: 500;
+  /* Hebrew benefits from slightly tighter tracking on display sizes. */
   letter-spacing: -0.01em;
+  /* Avoid orphaned single words on the last line of a heading. */
+  text-wrap: balance;
+}
+
+/* Keep paragraphs in body chrome (non-prose) breathing room around niqqud. */
+p {
+  text-wrap: pretty;
+}
+
+/* Hebrew quotation marks should hang into the margin where supported. */
+blockquote {
+  hanging-punctuation: first last;
 }
 
 /* RTL-aware research prose. Layered on top of @tailwindcss/typography's
@@ -125,9 +141,18 @@ h1, h2, h3, h4 {
 /* Hebrew typography polish: better spacing for nikud, tighter heading
  * tracking, and a font fallback chain that survives missing Hebrew glyphs. */
 .prose-rtl :where(p, li, blockquote):not(:where([class~="not-prose"] *)) {
+  /* 1.85 was tuned on Frank Ruhl + Assistant: enough room for niqqud +
+   * ligature ascenders without feeling double-spaced. Do not lower below 1.7. */
   line-height: 1.85;
   font-feature-settings: "kern", "liga", "calt";
   font-variant-numeric: tabular-nums;
+  text-wrap: pretty;
+}
+
+/* Display headings inside long-form prose get balanced wrapping so
+ * Hebrew titles don't break with a single trailing word. */
+.prose-rtl :where(h1, h2, h3):not(:where([class~="not-prose"] *)) {
+  text-wrap: balance;
 }
 
 .prose-rtl :where(code):not(:where([class~="not-prose"] *)) {
