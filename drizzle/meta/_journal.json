@@ -8,6 +8,13 @@
       "when": 1777126786283,
       "tag": "0000_exotic_crusher_hogan",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1777740000000,
+      "tag": "0001_hebrew_search",
+      "breakpoints": true
     }
   ]
 }

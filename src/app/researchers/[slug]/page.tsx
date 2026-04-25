@@ -4,13 +4,15 @@ import { notFound } from "next/navigation";
 
 import {
   getResearcherProfile,
-  getResearchForResearcher,
   type ResearcherLink,
 } from "@/lib/researchers";
+import { parseFilters, searchResearch } from "@/lib/research-search";
 import { ResearcherAvatar } from "@/components/researchers/avatar";
+import { Pagination } from "@/components/research/pagination";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export const dynamic = "force-dynamic";
@@ -40,12 +42,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function ResearcherProfilePage({ params }: PageProps) {
+export default async function ResearcherProfilePage({
+  params,
+  searchParams,
+}: PageProps) {
   const { slug } = await params;
   const profile = await getResearcherProfile(slug);
   if (!profile) notFound();
 
-  const research = await getResearchForResearcher(profile);
+  const raw = await searchParams;
+  const filters = parseFilters({ ...raw, author: profile.slug });
+  const { papers: research, totalPages } = await searchResearch(filters);
+  const basePath = `/researchers/${encodeURIComponent(profile.slug)}`;
 
   return (
     <article className="container mx-auto w-full max-w-3xl px-6 py-16">
@@ -104,19 +112,24 @@ export default async function ResearcherProfilePage({ params }: PageProps) {
                   <h3 className="font-serif text-xl leading-snug group-hover:underline">
                     {entry.title}
                   </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {entry.excerpt}
-                  </p>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    <time dateTime={entry.published_at}>
-                      {HE_DATE.format(new Date(entry.published_at))}
-                    </time>
-                  </p>
+                  {entry.excerpt && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {entry.excerpt}
+                    </p>
+                  )}
+                  {entry.publishedAt && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      <time dateTime={entry.publishedAt}>
+                        {HE_DATE.format(new Date(entry.publishedAt))}
+                      </time>
+                    </p>
+                  )}
                 </Link>
               </li>
             ))}
           </ul>
         )}
+        <Pagination basePath={basePath} filters={filters} totalPages={totalPages} />
       </section>
     </article>
   );

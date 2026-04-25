@@ -77,7 +77,7 @@ export const researchPapers = pgTable(
     publishedAt: timestamp("published_at", { withTimezone: true }),
     draft: boolean("draft").notNull().default(true),
     searchTsv: tsvector("search_tsv").generatedAlwaysAs(
-      sql`(setweight(to_tsvector('simple', coalesce(title, '')), 'A') || setweight(to_tsvector('simple', coalesce(excerpt, '')), 'B') || setweight(to_tsvector('simple', coalesce(body_markdown, '')), 'C'))`,
+      sql`(setweight(to_tsvector('simple', immutable_unaccent(coalesce(title, ''))), 'A') || setweight(to_tsvector('simple', immutable_unaccent(coalesce(excerpt, ''))), 'B') || setweight(to_tsvector('simple', immutable_unaccent(coalesce(body_markdown, ''))), 'C'))`,
     ),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

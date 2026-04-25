@@ -1,20 +1,37 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { listResearchFiles } from "@/lib/research";
+import {
+  listResearcherFacets,
+  listTagFacets,
+  parseFilters,
+  searchResearch,
+} from "@/lib/research-search";
+import { PaperCard } from "@/components/research/paper-card";
+import { Pagination } from "@/components/research/pagination";
+import { SearchForm } from "@/components/research/search-form";
 
 export const metadata: Metadata = {
   title: "מחקרים",
   description: "ארכיון המחקרים של עמותת זה עלינו.",
 };
 
-const HE_DATE = new Intl.DateTimeFormat("he-IL", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
+// The catalog reads from Postgres at request time so query/tag/author filters
+// reflect the live DB without needing a rebuild.
+export const dynamic = "force-dynamic";
 
-export default async function ResearchIndex() {
-  const all = await listResearchFiles();
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function ResearchIndex({ searchParams }: PageProps) {
+  const raw = await searchParams;
+  const filters = parseFilters(raw);
+
+  const [{ papers, total, totalPages, matchedVia }, tagFacets, researcherFacets] =
+    await Promise.all([
+      searchResearch(filters),
+      listTagFacets(),
+      listResearcherFacets(),
+    ]);
 
   return (
     <div className="container mx-auto w-full max-w-3xl px-6 py-16">
@@ -25,40 +42,48 @@ export default async function ResearchIndex() {
         </p>
       </header>
 
-      {all.length === 0 ? (
-        <p className="text-muted-foreground">לא פורסמו עדיין מחקרים.</p>
+      <SearchForm
+        filters={filters}
+        tagFacets={tagFacets}
+        researcherFacets={researcherFacets}
+        basePath="/research"
+      />
+
+      {filters.q && (
+        <p className="mb-6 text-sm text-muted-foreground" aria-live="polite">
+          {total === 0
+            ? `לא נמצאו תוצאות עבור "${filters.q}".`
+            : `נמצאו ${total} תוצאות עבור "${filters.q}"${
+                matchedVia === "trigram" ? " (התאמה חלקית)" : ""
+              }.`}
+        </p>
+      )}
+
+      {papers.length === 0 ? (
+        <p className="text-muted-foreground">
+          {filters.q ||
+          filters.tagSlugs.length > 0 ||
+          filters.researcherSlug ||
+          filters.from ||
+          filters.to
+            ? "לא נמצאו מחקרים התואמים לסינון. נסו לשחרר את אחד הפילטרים."
+            : "לא פורסמו עדיין מחקרים."}
+        </p>
       ) : (
         <ul className="divide-y divide-border">
-          {all.map((entry) => (
-            <li key={entry.slug} className="py-6">
-              <article>
-                <Link
-                  href={`/research/${entry.slug}`}
-                  className="group block focus:outline-none"
-                >
-                  <h2 className="font-serif text-2xl leading-snug tracking-tight group-hover:underline">
-                    {entry.title}
-                  </h2>
-                  <p className="mt-2 text-muted-foreground">{entry.excerpt}</p>
-                  <p className="mt-3 text-sm text-muted-foreground">
-                    <time dateTime={entry.published_at}>
-                      {HE_DATE.format(new Date(entry.published_at))}
-                    </time>
-                    {entry.authors.length > 0 && (
-                      <>
-                        <span className="mx-2" aria-hidden>
-                          ·
-                        </span>
-                        {entry.authors.join(" · ")}
-                      </>
-                    )}
-                  </p>
-                </Link>
-              </article>
+          {papers.map((paper) => (
+            <li key={paper.slug}>
+              <PaperCard paper={paper} />
             </li>
           ))}
         </ul>
       )}
+
+      <Pagination
+        basePath="/research"
+        filters={filters}
+        totalPages={totalPages}
+      />
     </div>
   );
 }
