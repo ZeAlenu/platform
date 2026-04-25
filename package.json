@@ -15,7 +15,8 @@
     "db:studio": "drizzle-kit studio",
     "content:sync": "tsx scripts/sync-researchers.ts && tsx scripts/sync-research.ts",
     "content:sync:research": "tsx scripts/sync-research.ts",
-    "content:sync:researchers": "tsx scripts/sync-researchers.ts"
+    "content:sync:researchers": "tsx scripts/sync-researchers.ts",
+    "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -26,8 +27,11 @@
     "@mdx-js/react": "^3.1.1",
     "@neondatabase/serverless": "^1.1.0",
     "@next/mdx": "^16.2.4",
+    "@sentry/nextjs": "^10.50.0",
     "@tailwindcss/typography": "^0.5.19",
     "@types/mdx": "^2.0.13",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "bidi-js": "^1.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

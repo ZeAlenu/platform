@@ -79,3 +79,13 @@ Estimated effort: one engineer-week.
 ## Deployment
 
 Pushing to `main` triggers a Vercel production deployment. Pull requests get preview deployments automatically. Production env vars (Neon URL, Clerk keys, webhook secret) live in the Vercel project settings.
+
+## Production cutover (one-time)
+
+1. **Domain.** CEO purchases `zealenu.org.il` (primary) and `zealenu.org` (backup). In Vercel → Project → Settings → Domains, add both.
+2. **DNS.** Point `zealenu.org.il` at Vercel (`A 76.76.21.21` for the apex, `CNAME cname.vercel-dns.com` for `www`). Configure `zealenu.org` as a 308 redirect to `zealenu.org.il` from Vercel's domain settings.
+3. **SSL.** Vercel issues a Let's Encrypt certificate automatically once DNS verifies; no manual step.
+4. **Site URL env var.** Set `NEXT_PUBLIC_SITE_URL=https://zealenu.org.il` in Vercel production env. Sitemap, robots, OG tags, and `hreflang` all key off this.
+5. **Analytics.** Vercel Analytics + Speed Insights are wired in `src/components/site-analytics.tsx` and start reporting automatically once the site is on Vercel — no additional env var. For Plausible, set `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` to the domain registered in Plausible (and `NEXT_PUBLIC_PLAUSIBLE_SCRIPT_SRC` if self-hosting Community Edition).
+6. **Sentry.** In the Sentry project settings, copy the DSN into `NEXT_PUBLIC_SENTRY_DSN`. Create a build-only auth token (Settings → Auth Tokens, scopes: `project:releases`, `project:write`, `org:read`) and set `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` in Vercel build env. Source maps upload on every production build via `withSentryConfig`.
+7. **Smoke tests.** After the first production deploy, run `pnpm smoke` to verify home → catalog → article → researcher → sitemap → robots all return 200 with the expected RTL/Hebrew markers. Override the target with `SMOKE_BASE_URL=https://preview-url.vercel.app pnpm smoke` for previews.

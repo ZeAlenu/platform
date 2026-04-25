@@ -5,6 +5,7 @@ import { heIL } from "@clerk/localizations";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteAnalytics } from "@/components/site-analytics";
 import { cn } from "@/lib/utils";
 import {
   SITE_DESCRIPTION,
@@ -116,6 +117,7 @@ export default function RootLayout({
             // Static, server-rendered schema.org payload — no user input.
             dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_JSONLD) }}
           />
+          <SiteAnalytics />
         </body>
       </html>
     </ClerkProvider>
