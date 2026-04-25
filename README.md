@@ -89,3 +89,26 @@ Pushing to `main` triggers a Vercel production deployment. Pull requests get pre
 5. **Analytics.** Vercel Analytics + Speed Insights are wired in `src/components/site-analytics.tsx` and start reporting automatically once the site is on Vercel — no additional env var. For Plausible, set `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` to the domain registered in Plausible (and `NEXT_PUBLIC_PLAUSIBLE_SCRIPT_SRC` if self-hosting Community Edition).
 6. **Sentry.** In the Sentry project settings, copy the DSN into `NEXT_PUBLIC_SENTRY_DSN`. Create a build-only auth token (Settings → Auth Tokens, scopes: `project:releases`, `project:write`, `org:read`) and set `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` in Vercel build env. Source maps upload on every production build via `withSentryConfig`.
 7. **Smoke tests.** After the first production deploy, run `pnpm smoke` to verify home → catalog → article → researcher → sitemap → robots all return 200 with the expected RTL/Hebrew markers. Override the target with `SMOKE_BASE_URL=https://preview-url.vercel.app pnpm smoke` for previews.
+
+## Researcher submissions — content-lead workflow
+
+Submissions from `/submit` always persist to the `research_submissions` table (separate from published `research_papers`). GitHub PR automation and Resend notifications are layered on top and degrade independently — the cutover ships safely without either.
+
+**With Tier 2 creds (preferred):**
+
+1. Researcher submits via `/submit`; the form action calls `submitForReviewAction`.
+2. If `getGithubConfig()` resolves (GitHub App or `GITHUB_TOKEN` + `GITHUB_OWNER`/`GITHUB_REPO`), a branch + PR open against `main` with the MDX rendered from the submission. The PR url is stored on the submission row.
+3. If `getEmailConfig()` resolves (Resend `RESEND_API_KEY` + `CONTENT_LEAD_EMAIL` + `EMAIL_FROM`), the content lead receives an email with the PR link and submitter info.
+4. Content lead reviews the PR, edits the MDX as needed, and merges. The article appears under `/research/<slug>` once the new commit deploys.
+
+**Without Tier 2 creds (manual fallback — default until creds land):**
+
+1. Researcher submits via `/submit`; the submission still persists.
+2. The UI surfaces explicit warnings noting that GitHub PR / email notification did not run.
+3. Content lead reviews submissions directly:
+   - via Drizzle Studio (`pnpm db:studio`) — query `research_submissions` filtered to `status = 'submitted'`, OR
+   - via a future internal admin route (out-of-scope for v1).
+4. To publish, the content lead creates the MDX manually under `content/research/<slug>.mdx`, mirroring the structure of existing files (`content/research/welcome.mdx` is a good template). They commit on a feature branch, open a PR, and merge — same end state as the automated flow.
+5. After publish, update the submission row's `status` to `published` (Drizzle Studio) so the researcher dashboard reflects it.
+
+**Switching from manual to automated mid-flight:** the moment `GITHUB_TOKEN`/`RESEND_API_KEY` land in Vercel env, new submissions auto-PR and email — no code change. Submissions made under the manual path stay in DB; the content lead handles them as before.
