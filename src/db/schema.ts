@@ -115,8 +115,53 @@ export const researchTags = pgTable(
   (t) => [primaryKey({ columns: [t.paperId, t.tagId] })],
 );
 
+export const SUBMISSION_STATUSES = [
+  "draft",
+  "submitted",
+  "under_review",
+  "changes_requested",
+  "published",
+  "rejected",
+] as const;
+export type SubmissionStatus = (typeof SUBMISSION_STATUSES)[number];
+
+export const researchSubmissions = pgTable(
+  "research_submissions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    researcherId: uuid("researcher_id").references(() => researchers.id, {
+      onDelete: "set null",
+    }),
+    slug: text("slug").notNull(),
+    titleHe: text("title_he").notNull(),
+    excerpt: text("excerpt"),
+    language: text("language").notNull().default("he"),
+    tagSlugs: jsonb("tag_slugs").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
+    bodyMarkdown: text("body_markdown").notNull().default(""),
+    status: text("status").notNull().default("draft"),
+    prUrl: text("pr_url"),
+    prNumber: integer("pr_number"),
+    branchName: text("branch_name"),
+    reviewNotes: text("review_notes"),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("research_submissions_slug_unique").on(t.slug),
+    index("research_submissions_user_idx").on(t.userId),
+    index("research_submissions_status_idx").on(t.status),
+  ],
+);
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Researcher = typeof researchers.$inferSelect;
 export type Tag = typeof tags.$inferSelect;
 export type ResearchPaper = typeof researchPapers.$inferSelect;
+export type ResearchSubmission = typeof researchSubmissions.$inferSelect;
+export type NewResearchSubmission = typeof researchSubmissions.$inferInsert;

@@ -15,6 +15,13 @@
       "when": 1777740000000,
       "tag": "0001_hebrew_search",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777130928954,
+      "tag": "0002_flat_microchip",
+      "breakpoints": true
     }
   ]
 }

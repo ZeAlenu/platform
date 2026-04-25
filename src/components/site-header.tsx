@@ -36,6 +36,12 @@ export function SiteHeader() {
             </SignInButton>
           </Show>
           <Show when="signed-in">
+            <Link
+              href="/dashboard"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              הדשבורד שלי
+            </Link>
             <UserButton />
           </Show>
         </nav>
