@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@plugin "@tailwindcss/typography";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -85,7 +87,7 @@
 
 body {
   font-family: var(--font-sans);
-  font-feature-settings: "kern", "liga";
+  font-feature-settings: "kern", "liga", "calt";
   text-rendering: optimizeLegibility;
 }
 
@@ -93,6 +95,59 @@ h1, h2, h3, h4 {
   font-family: var(--font-serif);
   font-weight: 500;
   letter-spacing: -0.01em;
+}
+
+/* RTL-aware research prose. Layered on top of @tailwindcss/typography's
+ * `prose` class. Tailwind Typography assumes LTR for list bullets and
+ * blockquote borders; these overrides flip them for Hebrew. */
+.prose-rtl {
+  --tw-prose-quote-borders: var(--color-border);
+  text-align: start;
+}
+
+.prose-rtl :where(blockquote):not(:where([class~="not-prose"] *)) {
+  border-inline-start: 0.25rem solid var(--tw-prose-quote-borders);
+  border-left: none;
+  padding-inline-start: 1rem;
+  padding-left: 0;
+  font-family: var(--font-serif);
+}
+
+.prose-rtl :where(ul, ol):not(:where([class~="not-prose"] *)) {
+  padding-inline-start: 1.625em;
+  padding-left: 0;
+}
+
+.prose-rtl :where(h1, h2, h3, h4, h5, h6):not(:where([class~="not-prose"] *)) {
+  font-family: var(--font-serif);
+}
+
+/* Hebrew typography polish: better spacing for nikud, tighter heading
+ * tracking, and a font fallback chain that survives missing Hebrew glyphs. */
+.prose-rtl :where(p, li, blockquote):not(:where([class~="not-prose"] *)) {
+  line-height: 1.85;
+  font-feature-settings: "kern", "liga", "calt";
+  font-variant-numeric: tabular-nums;
+}
+
+.prose-rtl :where(code):not(:where([class~="not-prose"] *)) {
+  direction: ltr;
+  unicode-bidi: embed;
+  font-feature-settings: normal;
+}
+
+/* Footnote rendering (remark-gfm). The default markup is a small <sup> with
+ * an in-page anchor; pair it with the footnotes section at the bottom. */
+.prose-rtl :where(.footnotes):not(:where([class~="not-prose"] *)) {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.95em;
+}
+
+.prose-rtl :where(sup a):not(:where([class~="not-prose"] *)) {
+  margin-inline-start: 0.125rem;
+  text-decoration: none;
 }
 
 .dark {
