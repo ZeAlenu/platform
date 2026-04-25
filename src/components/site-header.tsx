@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 
 const navLinks = [
   { href: "/research", label: "מחקרים" },
@@ -26,6 +27,16 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          <Show when="signed-out">
+            <SignInButton mode="modal">
+              <button className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                כניסה
+              </button>
+            </SignInButton>
+          </Show>
+          <Show when="signed-in">
+            <UserButton />
+          </Show>
         </nav>
       </div>
     </header>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Frank_Ruhl_Libre, Assistant } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { heIL } from "@clerk/localizations";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -32,20 +34,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="he"
-      dir="rtl"
-      className={cn(
-        "h-full antialiased",
-        frankRuhlLibre.variable,
-        assistant.variable,
-      )}
-    >
-      <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
-        <SiteHeader />
-        <main className="flex-1 flex flex-col">{children}</main>
-        <SiteFooter />
-      </body>
-    </html>
+    <ClerkProvider localization={heIL} signInUrl="/sign-in" signUpUrl="/sign-up">
+      <html
+        lang="he"
+        dir="rtl"
+        className={cn(
+          "h-full antialiased",
+          frankRuhlLibre.variable,
+          assistant.variable,
+        )}
+      >
+        <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
+          <SiteHeader />
+          <main className="flex-1 flex flex-col">{children}</main>
+          <SiteFooter />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
