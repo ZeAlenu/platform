@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 ps-6 pe-6 py-20 flex flex-col gap-10">
       <section className="flex flex-col gap-5">
-        <p className="text-sm uppercase tracking-widest text-muted">
+        <p className="text-sm uppercase tracking-widest text-muted-foreground">
           עמותת זה עלינו
         </p>
         <h1 className="text-4xl sm:text-5xl font-serif leading-tight">
@@ -12,7 +12,7 @@ export default function Home() {
           <br />
           לציונות יהודית בישראל.
         </h1>
-        <p className="text-lg leading-relaxed text-muted max-w-2xl">
+        <p className="text-lg leading-relaxed text-muted-foreground max-w-2xl">
           פלטפורמה ציבורית, בעברית, לפרסום מחקרים, נתונים, וניירות עמדה. הכל
           פתוח, הכל נגיש, הכל ניתן לציטוט.
         </p>
@@ -33,7 +33,7 @@ export default function Home() {
       </section>
 
       <section className="border-t border-border pt-10">
-        <p className="text-sm text-muted">
+        <p className="text-sm text-muted-foreground">
           האתר בהקמה. תוכן ראשון יעלה במהלך השבועות הקרובים.
         </p>
       </section>

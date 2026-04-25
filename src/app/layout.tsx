@@ -3,6 +3,7 @@ import { Frank_Ruhl_Libre, Assistant } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { cn } from "@/lib/utils";
 
 const frankRuhlLibre = Frank_Ruhl_Libre({
   variable: "--font-serif",
@@ -34,7 +35,11 @@ export default function RootLayout({
     <html
       lang="he"
       dir="rtl"
-      className={`${frankRuhlLibre.variable} ${assistant.variable} h-full antialiased`}
+      className={cn(
+        "h-full antialiased",
+        frankRuhlLibre.variable,
+        assistant.variable,
+      )}
     >
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
         <SiteHeader />
