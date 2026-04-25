@@ -1,9 +1,26 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { SITE_NAME, absoluteUrl } from "@/lib/site";
+
 export const metadata: Metadata = {
   title: "אודות",
   description: "על עמותת זה עלינו, פלטפורמת המחקרים שלנו, ועקרונות הפרסום.",
+  alternates: {
+    canonical: "/about",
+    languages: {
+      he: absoluteUrl("/about"),
+      "x-default": absoluteUrl("/about"),
+    },
+  },
+  openGraph: {
+    type: "website",
+    title: "אודות",
+    description: "על עמותת זה עלינו, פלטפורמת המחקרים שלנו, ועקרונות הפרסום.",
+    url: absoluteUrl("/about"),
+    siteName: SITE_NAME,
+    locale: "he_IL",
+  },
 };
 
 export default function AboutPage() {

@@ -8,10 +8,26 @@ import {
 import { PaperCard } from "@/components/research/paper-card";
 import { Pagination } from "@/components/research/pagination";
 import { SearchForm } from "@/components/research/search-form";
+import { SITE_NAME, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "מחקרים",
   description: "ארכיון המחקרים של עמותת זה עלינו.",
+  alternates: {
+    canonical: "/research",
+    languages: {
+      he: absoluteUrl("/research"),
+      "x-default": absoluteUrl("/research"),
+    },
+  },
+  openGraph: {
+    type: "website",
+    title: "מחקרים",
+    description: "ארכיון המחקרים של עמותת זה עלינו.",
+    url: absoluteUrl("/research"),
+    siteName: SITE_NAME,
+    locale: "he_IL",
+  },
 };
 
 // The catalog reads from Postgres at request time so query/tag/author filters

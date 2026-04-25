@@ -5,10 +5,12 @@ import { notFound } from "next/navigation";
 import {
   getResearcherProfile,
   type ResearcherLink,
+  type ResearcherProfile,
 } from "@/lib/researchers";
 import { parseFilters, searchResearch } from "@/lib/research-search";
 import { ResearcherAvatar } from "@/components/researchers/avatar";
 import { Pagination } from "@/components/research/pagination";
+import { SITE_LEGAL_NAME, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/site";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -32,13 +34,65 @@ const LINK_LABELS: Record<ResearcherLink["kind"], string> = {
   other: "קישור",
 };
 
+function profileCanonical(slug: string): string {
+  return `/researchers/${encodeURIComponent(slug)}`;
+}
+
+function profileDescription(profile: ResearcherProfile): string {
+  return profile.bio?.split("\n")[0] ?? `פרופיל החוקר/ת ${profile.displayName}.`;
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const profile = await getResearcherProfile(slug);
   if (!profile) return {};
+  const canonical = profileCanonical(profile.slug);
+  const description = profileDescription(profile);
   return {
     title: profile.displayName,
-    description: profile.bio?.split("\n")[0] ?? `פרופיל החוקר/ת ${profile.displayName}.`,
+    description,
+    alternates: {
+      canonical,
+      languages: {
+        he: absoluteUrl(canonical),
+        "x-default": absoluteUrl(canonical),
+      },
+    },
+    openGraph: {
+      type: "profile",
+      title: profile.displayName,
+      description,
+      url: absoluteUrl(canonical),
+      siteName: SITE_NAME,
+      locale: "he_IL",
+      images: profile.photoUrl ? [{ url: profile.photoUrl }] : undefined,
+    },
+    twitter: {
+      card: "summary",
+      title: profile.displayName,
+      description,
+    },
+  };
+}
+
+function buildPersonJsonLd(profile: ResearcherProfile): Record<string, unknown> {
+  const url = absoluteUrl(profileCanonical(profile.slug));
+  const sameAs = profile.links
+    .filter((l) => /^https?:\/\//i.test(l.href))
+    .map((l) => l.href);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: profile.displayName,
+    description: profile.bio ?? undefined,
+    url,
+    image: profile.photoUrl ?? undefined,
+    sameAs: sameAs.length > 0 ? sameAs : undefined,
+    affiliation: {
+      "@type": "Organization",
+      name: SITE_LEGAL_NAME,
+      url: SITE_URL,
+    },
   };
 }
 
@@ -53,10 +107,15 @@ export default async function ResearcherProfilePage({
   const raw = await searchParams;
   const filters = parseFilters({ ...raw, author: profile.slug });
   const { papers: research, totalPages } = await searchResearch(filters);
-  const basePath = `/researchers/${encodeURIComponent(profile.slug)}`;
+  const basePath = profileCanonical(profile.slug);
+  const personJsonLd = buildPersonJsonLd(profile);
 
   return (
     <article className="container mx-auto w-full max-w-3xl px-6 py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+      />
       <header className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
         <ResearcherAvatar
           displayName={profile.displayName}

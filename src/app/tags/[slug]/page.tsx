@@ -8,6 +8,7 @@ import {
 } from "@/lib/research-search";
 import { PaperCard } from "@/components/research/paper-card";
 import { Pagination } from "@/components/research/pagination";
+import { SITE_NAME, absoluteUrl } from "@/lib/site";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -21,9 +22,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const decoded = decodeURIComponent(slug);
   const tag = await getTagBySlug(decoded);
   if (!tag) return {};
+  const title = `תגית: ${tag.nameHe}`;
+  const description = `מחקרים שתויגו בתגית "${tag.nameHe}".`;
+  const canonical = `/tags/${encodeURIComponent(tag.slug)}`;
   return {
-    title: `תגית: ${tag.nameHe}`,
-    description: `מחקרים שתויגו בתגית "${tag.nameHe}".`,
+    title,
+    description,
+    alternates: {
+      canonical,
+      languages: {
+        he: absoluteUrl(canonical),
+        "x-default": absoluteUrl(canonical),
+      },
+    },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: absoluteUrl(canonical),
+      siteName: SITE_NAME,
+      locale: "he_IL",
+    },
+    twitter: { card: "summary", title, description },
   };
 }
 

@@ -3,10 +3,26 @@ import type { Metadata } from "next";
 
 import { listResearcherProfiles } from "@/lib/researchers";
 import { ResearcherAvatar } from "@/components/researchers/avatar";
+import { SITE_NAME, absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "חוקרות וחוקרים",
   description: "צוות החוקרות והחוקרים של עמותת זה עלינו.",
+  alternates: {
+    canonical: "/researchers",
+    languages: {
+      he: absoluteUrl("/researchers"),
+      "x-default": absoluteUrl("/researchers"),
+    },
+  },
+  openGraph: {
+    type: "website",
+    title: "חוקרות וחוקרים",
+    description: "צוות החוקרות והחוקרים של עמותת זה עלינו.",
+    url: absoluteUrl("/researchers"),
+    siteName: SITE_NAME,
+    locale: "he_IL",
+  },
 };
 
 // Researchers come from the DB (Clerk-synced + seeded). Render at request time

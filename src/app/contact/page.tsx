@@ -1,8 +1,25 @@
 import type { Metadata } from "next";
 
+import { SITE_NAME, absoluteUrl } from "@/lib/site";
+
 export const metadata: Metadata = {
   title: "צרו קשר",
   description: "דרכי יצירת קשר עם עמותת זה עלינו — דוא״ל, עיתונות, ושיתופי פעולה.",
+  alternates: {
+    canonical: "/contact",
+    languages: {
+      he: absoluteUrl("/contact"),
+      "x-default": absoluteUrl("/contact"),
+    },
+  },
+  openGraph: {
+    type: "website",
+    title: "צרו קשר",
+    description: "דרכי יצירת קשר עם עמותת זה עלינו — דוא״ל, עיתונות, ושיתופי פעולה.",
+    url: absoluteUrl("/contact"),
+    siteName: SITE_NAME,
+    locale: "he_IL",
+  },
 };
 
 const CONTACTS: Array<{
